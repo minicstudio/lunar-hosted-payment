@@ -1,0 +1,43 @@
+{
+  "name": "minic/lunar-payment-processor",
+  "description": "Flexible payment integration for Laravel, lunarphp, supporting multiple payment providers.",
+  "keywords": [
+    "minic",
+    "laravel",
+    "lunarphp",
+    "ecommerce",
+    "payment",
+    "stripe"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Buksa Kinga-Orsolya",
+      "email": "buksakinga@minic.ro",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "lunarphp/lunar": "^1.1.0",
+    "stripe/stripe-php": "^14.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Minic\\LunarPaymentProcessor\\": "src/"
+    }
+  },
+  "minimum-stability": "dev",
+  "repositories": {
+    "lunar": {
+        "type": "git",
+        "url": "git@github.com:minicstudio/lunar.git"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true
+    }
+  }
+}

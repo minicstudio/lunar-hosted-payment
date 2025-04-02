@@ -3,6 +3,7 @@
 namespace Minic\LunarPaymentProcessor;
 
 use Minic\LunarPaymentProcessor\Contracts\PaymentDriverInterface;
+use Lunar\Models\Cart;
 
 class PaymentGateway
 {
@@ -13,13 +14,49 @@ class PaymentGateway
         $this->driver = $driver;
     }
 
-    public function charge(array $paymentDetails)
+    /**
+     * Create a payment intent
+     *
+     * @param Cart $cart
+     * @param array $options
+     * @return mixed
+     */
+    public function createPayment(Cart $cart, array $options = [])
     {
-        return $this->driver->charge($paymentDetails);
+        return $this->driver->createPayment($cart, $options);
     }
 
-    public function refund(string $transactionId, float $amount)
+    /**
+     * Cancel the payment
+     *
+     * @param Cart $cart
+     * @param string $reason
+     * @return void
+     */
+    public function cancelPayment(Cart $cart, string $reason = '')
     {
-        return $this->driver->refund($transactionId, $amount);
+        $this->driver->cancelPayment($cart, $reason);
+    }
+
+    /**
+     * Fetch a payment intent by ID
+     *
+     * @param string $paymentIntentId
+     * @return mixed
+     */
+    public function fetchPayment(string $paymentIntentId)
+    {
+        return $this->driver->fetchPayment($paymentIntentId);
+    }
+
+    /**
+     * Get the list of transactions for a specific payment intent
+     *
+     * @param string $paymentIntentId
+     * @return mixed
+     */
+    public function getTransactions(string $paymentIntentId)
+    {
+        return $this->driver->getTransactions($paymentIntentId);
     }
 }

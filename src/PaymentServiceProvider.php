@@ -3,26 +3,29 @@
 namespace Minic\LunarPaymentProcessor;
 
 use Illuminate\Support\ServiceProvider;
-use Minic\LunarPaymentProcessor\Drivers\StripeDriver;
+use Lunar\Facades\Payments;
 
 class PaymentServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        // Merge the default config to allow users to override it
-        $this->mergeConfigFrom(__DIR__.'/../config/payment.php', 'payment');
+        Payments::extend('card', function ($app) {
+            return $app->make(CardPayment::class);
+        });
 
         $this->app->singleton(PaymentGateway::class, function ($app) {
             // Get the configured payment provider
-            $provider = config('payment.default', 'stripe');
+            $provider = config('lunar-payment-processor.payment.default', 'stripe');
 
             // Get the corresponding driver class
-            $drivers = config('payment.drivers', []);
-            $driverClass = $drivers[$provider] ?? null;
+            $providers = config('lunar-payment-processor.payment.providers', []);
+            $providerConfig = $providers[$provider] ?? null;
 
-            if (!$driverClass || !class_exists($driverClass)) {
+            if (!$providerConfig || !isset($providerConfig['driver_class']) || !class_exists($providerConfig['driver_class'])) {
                 throw new \Exception("Invalid or unsupported payment provider: {$provider}");
             }
+
+            $driverClass = $providerConfig['driver_class'];
 
             return new PaymentGateway(new $driverClass());
         });

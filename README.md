@@ -93,7 +93,7 @@ use Lunar\Models\Cart;
 
 class NewPaymentDriver implements PaymentDriverInterface
 {
-    public function createPayment(Cart $cart, array $options = []): string
+    public function createPayment(string $paymentId, array $options = []): string
     {
         // Implementation for new provider
     }

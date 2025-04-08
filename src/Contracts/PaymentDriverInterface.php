@@ -3,13 +3,13 @@
 namespace Minic\LunarPaymentProcessor\Contracts;
 
 use Illuminate\Support\Collection;
-use Lunar\Models\Cart;
 
 interface PaymentDriverInterface
 {
     public function getClient();
-    public function createPayment(Cart $cart, array $options = []);
-    public function cancelPayment(Cart $cart, string $reason = ''): void;
-    public function fetchPayment(string $paymentId): ?Collection;
+    public function createPayment(array $payload = []);
+    public function updatePayment(string $intentId, array $payload): void;
+    public function cancelPayment(string $paymentId, string $reason = ''): void;
+    public function fetchPayment(string $intentId): ?Collection;
     public function getTransactions(string $paymentId): Collection;
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Minic\LunarPaymentProcessor;
+namespace Minic\LunarStripePayment;
 
 use Lunar\Base\DataTransferObjects\PaymentAuthorize;
 use Lunar\Base\DataTransferObjects\PaymentCapture;
@@ -10,7 +10,7 @@ use Lunar\Models\Transaction;
 use Lunar\PaymentTypes\AbstractPayment;
 use Stripe\PaymentIntent;
 
-class CardPayment extends AbstractPayment
+class StripePaymentType extends AbstractPayment
 {
     /**
      * {@inheritDoc}

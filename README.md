@@ -1,105 +1,72 @@
-# Lunar Payment Processor
+# Lunar Stripe Payment Integration
 
 ## Introduction
-This package provides an extensible payment gateway integration for Lunar PHP, allowing seamless support for multiple payment providers. The package follows a driver-based architecture, making it easy to add and configure different payment processors.
+This package provides a Stripe payment gateway integration for Lunar PHP. It allows you to handle payments seamlessly using Stripe's API, including creating payment intents and managing transactions.
 
 ## Features
-- Support for multiple payment providers (starting with Stripe)
-- Extensible and modular architecture
-- Integration with Lunar PHP checkout process
-- Standardized payment driver interface
+- Stripe payment gateway integration
+- Support for card payments
+- Easy configuration and setup
+- Extensible architecture for additional payment methods
+
+## Minimum requirements
+- Lunar 1.x
+- A Stripe account with secret and public keys
+
 
 ## Installation
-### Step 1: Require the Package
+### Install the Package
 Install the package via Composer:
-```sh
-composer require minic/lunar-payment-processor
+```bash
+composer require minic/lunar-stripe-payment
 ```
 
-### Step 2: Publish the Configuration
-Publish the configuration file to customize settings:
+### Publish the Configuration
+Publish the configuration file:
 ```sh
-php artisan vendor:publish --tag=lunar-payment-processor-config
+php artisan vendor:publish --tag=lunar.stripe.config
 ```
 
-### Step 3: Register the Service Provider (if not auto-discovered)
+### Register the Service Provider (if not auto-discovered)
 If your Laravel project does not support package auto-discovery, add the service provider manually in `config/app.php`:
 ```php
 'providers' => [
-    Minic\LunarPaymentProcessor\PaymentServiceProvider::class,
+    Minic\LunarStripePayment\StripeServiceProvider::class,
 ];
 ```
 
-## Configuration
-Modify `config/payment.php` to define the default payment provider:
+### Add your Stripe credentials
+Make sure you have the Stripe credentials set in `config/services.php`
+
 ```php
-return [
-    'default' => env('PAYMENT_PROVIDER', 'stripe'),
-
-    'providers' => [
-        'stripe' => [
-            'key' => env('STRIPE_KEY'),
-            'secret' => env('STRIPE_SECRET'),
-        ],
-    ],
-];
-```
-
-Set the required environment variables in your `.env` file:
-```sh
-PAYMENT_PROVIDER=stripe
-STRIPE_KEY=your-stripe-public-key
-STRIPE_SECRET=your-stripe-secret-key
+'stripe' => [
+    'key' => env('STRIPE_SECRET_KEY'),
+    'public_key' => env('STRIPE_PUBLIC_KEY'),
+],
 ```
 
 ## Usage
-### Getting the Payment Gateway Instance
-```php
-use Minic\LunarPaymentProcessor\Facades\PaymentGateway;
 
-$gateway = PaymentGateway::getInstance();
+### Create a Payment
+```php
+use Minic\LunarPaymentProcessor\Facades\StripeGateway;
+
+$payment = StripeGateway::createPayment(\Lunar\Models\Cart $cart, $payload = []);
 ```
 
-### Creating a Payment Intent
+This method will create a Stripe checkout session and return the created payment session. You can then redirect the user to the Stripe's payment page:
+
 ```php
-$cart = Cart::find(1);
-$paymentIntent = $gateway->createPayment($cart, [
-    'description' => 'Order Payment',
-]);
+return redirect($payment['url']);
 ```
 
-### Retrieving a Payment
+### Authorize a Payment (create order)
+
+Following the lunarphp's pattern of authorizing the payment you can create the actual order by calling the gateway's authorize method. This will return the newly created order id.
+
 ```php
-$paymentDetails = $gateway->getPayment($paymentIntentId);
+$orderId = StripeGateway::authorize($cart, $cart->meta->intent_id);
 ```
-
-### Confirming a Payment
-```php
-$gateway->confirmPayment($paymentIntentId);
-```
-
-### Cancelling a Payment
-```php
-$gateway->cancelPayment($paymentIntentId, 'customer_request');
-```
-
-## Extending with New Providers
-To add a new payment provider, create a new driver class implementing `PaymentDriverInterface`:
-```php
-namespace Minic\LunarPaymentProcessor\Drivers;
-
-use Minic\LunarPaymentProcessor\Contracts\PaymentDriverInterface;
-use Lunar\Models\Cart;
-
-class NewPaymentDriver implements PaymentDriverInterface
-{
-    public function createPayment(string $paymentId, array $options = []): string
-    {
-        // Implementation for new provider
-    }
-}
-```
-Then register it in `config/payment.php`.
 
 ## Contributing
 1. Fork the repository

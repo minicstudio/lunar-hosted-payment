@@ -1,20 +1,17 @@
 <?php
 
-namespace Minic\LunarPaymentProcessor\Drivers;
+namespace Minic\LunarStripePayment\Drivers;
 
-use Illuminate\Support\Collection;
-use Minic\LunarPaymentProcessor\Contracts\PaymentDriverInterface;
+use Minic\LunarStripePayment\Contracts\StripeDriverInterface;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
-use Stripe\Exception\InvalidRequestException;
-use Stripe\PaymentIntent;
 use Stripe\StripeClient;
 
-class StripeDriver implements PaymentDriverInterface
+class StripeDriver implements StripeDriverInterface
 {
     public function __construct()
     {
-        Stripe::setApiKey(config('lunar-payment-processor.payment.providers.stripe.secret_key'));
+        Stripe::setApiKey(config('services.stripe.secret_key'));
     }
 
     /**
@@ -25,7 +22,7 @@ class StripeDriver implements PaymentDriverInterface
     public function getClient(): StripeClient
     {
         return new StripeClient([
-            'api_key' => config('payment.stripe.secret_key'),
+            'api_key' => config('services.stripe.secret_key'),
         ]);
     }
 
@@ -59,72 +56,13 @@ class StripeDriver implements PaymentDriverInterface
     }
 
     /**
-     * Update a payment intent
+     * Retrieve a payment intent from Stripe
      * 
-     * @param string $intentId
-     * @param array $payload
-     * @return void
+     * @param string $sessionId
+     * @return Session
      */
-    public function updatePayment(string $intentId, array $payload): void
+    public function retrievePayment(string $sessionId): Session
     {
-        $this->getClient()->paymentIntents->update(
-            $intentId,
-            $payload
-        );
-    }
-
-    /**
-     * Cancel a payment intent
-     * 
-     * @param string $paymentId
-     * @param string $reason
-     * @return void
-     */
-    public function cancelPayment(string $paymentId, string $reason = ''): void
-    {
-        $this->getClient()->paymentIntents->cancel(
-            $paymentId,
-            ['cancellation_reason' => $reason]
-        );
-        
-    }
-
-    /**
-     * Fetch an intent from the Stripe API.
-     * 
-     * @param string $intentId
-     * @return Collection|null
-     * @throws InvalidRequestException
-     */
-    public function fetchPayment(string $intentId): ?Collection
-    {
-        try {
-            $payment = PaymentIntent::retrieve($intentId);
-        } catch (InvalidRequestException $e) {
-            return null;
-        }
-
-        return collect($payment);
-    }
-
-    /**
-     * Get the list of transactions for a specific payment intent
-     * 
-     * @param string $paymentId
-     * @return Collection
-     */
-    public function getTransactions(string $paymentId): Collection
-    {
-        try {
-            return collect(
-                $this->getClient()->charges->all([
-                    'payment_intent' => $paymentId,
-                ])['data'] ?? null
-            );
-        } catch (\Exception $e) {
-            //
-        }
-
-        return collect();
+        return Session::retrieve($sessionId);
     }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "minic/lunar-payment-processor",
+  "name": "minic/lunar-stripe-payment",
   "description": "Flexible payment integration for Laravel, lunarphp, supporting multiple payment providers.",
   "keywords": [
     "minic",
@@ -25,7 +25,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Minic\\LunarPaymentProcessor\\": "src/"
+      "Minic\\LunarStripePayment\\": "src/"
     }
   },
   "minimum-stability": "dev",

@@ -19,6 +19,8 @@ class StripeDriver implements PaymentDriverInterface
 
     /**
      * Return the Stripe client
+     * 
+     * @return StripeClient
      */
     public function getClient(): StripeClient
     {
@@ -50,6 +52,7 @@ class StripeDriver implements PaymentDriverInterface
             'mode' => 'payment',
             'success_url' => $payload['success_url'],
             'cancel_url' => $payload['cancel_url'],
+            'customer_email' => $payload['email'] ?? null,
         ]);
 
         return $payment;
@@ -60,6 +63,7 @@ class StripeDriver implements PaymentDriverInterface
      * 
      * @param string $intentId
      * @param array $payload
+     * @return void
      */
     public function updatePayment(string $intentId, array $payload): void
     {
@@ -74,6 +78,7 @@ class StripeDriver implements PaymentDriverInterface
      * 
      * @param string $paymentId
      * @param string $reason
+     * @return void
      */
     public function cancelPayment(string $paymentId, string $reason = ''): void
     {
@@ -88,6 +93,8 @@ class StripeDriver implements PaymentDriverInterface
      * Fetch an intent from the Stripe API.
      * 
      * @param string $intentId
+     * @return Collection|null
+     * @throws InvalidRequestException
      */
     public function fetchPayment(string $intentId): ?Collection
     {
@@ -100,6 +107,12 @@ class StripeDriver implements PaymentDriverInterface
         return collect($payment);
     }
 
+    /**
+     * Get the list of transactions for a specific payment intent
+     * 
+     * @param string $paymentId
+     * @return Collection
+     */
     public function getTransactions(string $paymentId): Collection
     {
         try {

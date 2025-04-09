@@ -2,6 +2,8 @@
 
 namespace Minic\LunarPaymentProcessor;
 
+use Exception;
+use Illuminate\Support\Collection;
 use Lunar\Facades\Payments;
 use Minic\LunarPaymentProcessor\Contracts\PaymentDriverInterface;
 use Lunar\Models\Cart;
@@ -29,36 +31,44 @@ class PaymentGateway
     /**
      * Create a payment intent
      *
+     * @param Cart $cart
      * @param array $payload
      * @return Array
+     * @throws Exception
      */
     public function createPayment(Cart $cart, array $payload = []): Array
     {
-        $existingId = $this->getCartIntentId($cart);
-
-        if ($existingId) {
-            return $this->fetchPayment($existingId);
-        }
-
         $payload['amount'] = $cart->total->value;
         $payload['currency'] = $cart->currency->code;
 
         $paymentIntent = $this->driver->createPayment($payload);
+        } catch (Exception $e) {
+            // throwing general exception because there can be several different errors from the payment provider
+            throw new Exception('Failed to create payment intent: ' . $e->getMessage());
+        }
 
+        return $paymentIntent->toArray();
+    }
+
+    /**
+     * Authorize the payment, create order
+     *
+     * @param Cart $cart
+     * @param string $intentId
+     * @return string
+     */
+    public function authorize(Cart $cart, string $intentId): string
+    {
         $cart->paymentIntents()->create([
-            'intent_id' => $paymentIntent->id,
-            'status' => $paymentIntent->status,
+            'intent_id' => $intentId,
+            'status' => $this->config['authorized'] ?? 'payment-received',
         ]);
 
         $payment = Payments::driver('card')->cart($cart)->withData([
-            'payment_intent' => $paymentIntent->id,
-            'authorized' => $paymentIntent->status,
+            'payment_intent' => $intentId,
         ])->authorize();
 
-        return [
-            'orderId' => $payment->orderId,
-            'redirectUrl' => $paymentIntent->url,
-        ];
+        return $payment->orderId;
     }
 
     /**
@@ -68,7 +78,7 @@ class PaymentGateway
      * @param array $payload
      * @return void
      */
-    public function updatePayment(string $intentId, array $payload = [])
+    public function updatePayment(string $intentId, array $payload = []): void
     {
         $this->driver->updatePayment($intentId, $payload);
     }
@@ -80,7 +90,7 @@ class PaymentGateway
      * @param string $reason
      * @return void
      */
-    public function cancelPayment(Cart $cart, string $reason = '')
+    public function cancelPayment(Cart $cart, string $reason = ''): void
     {
         $paymentId = $this->getCartIntentId($cart);
 

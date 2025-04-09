@@ -8,6 +8,7 @@ use Lunar\Base\DataTransferObjects\PaymentRefund;
 use Lunar\Events\PaymentAttemptEvent;
 use Lunar\Models\Transaction;
 use Lunar\PaymentTypes\AbstractPayment;
+use Stripe\PaymentIntent;
 
 class CardPayment extends AbstractPayment
 {
@@ -26,10 +27,8 @@ class CardPayment extends AbstractPayment
             $this->data['meta'] ?? []
         );
 
-        $status = $this->data['authorized'] ?? null;
-
         $this->order->update([
-            'status' => $status ?? ($this->config['authorized'] ?? null),
+            'status' => PaymentIntent::STATUS_SUCCEEDED,
             'meta' => $orderMeta,
             'placed_at' => now(),
         ]);

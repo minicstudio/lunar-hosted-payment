@@ -8,12 +8,22 @@ use Minic\LunarStripePayment\Drivers\StripeDriver;
 
 class StripeServiceProvider extends ServiceProvider
 {
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
     public function register()
     {
         //
     }
 
-    public function boot()
+    /**
+     * Bootstrap the application services.
+     *
+     * @return void
+     */
+    public function boot(): void
     {
         Payments::extend('card', function ($app) {
             return $app->make(StripePaymentType::class);

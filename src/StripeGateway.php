@@ -6,44 +6,34 @@ use Exception;
 use Lunar\Facades\Payments;
 use Minic\LunarStripePayment\Contracts\StripeDriverInterface;
 use Lunar\Models\Cart;
+use Minic\LunarStripePayment\DTOs\PaymentPayload;
+use Minic\LunarStripePayment\Exceptions\StripeException;
 
 class StripeGateway
 {
-    /**
-     * The payment driver instance
-     *
-     * @var StripeDriverInterface
-     */
-    protected StripeDriverInterface $driver;
-
     /**
      * Create a new instance of the StripeGateway
      *
      * @param StripeDriverInterface $driver
      */
-    public function __construct(StripeDriverInterface $driver)
+    public function __construct(protected StripeDriverInterface $driver)
     {
-        $this->driver = $driver;
+        // The driver is automatically set by constructor injection
     }
 
     /**
      * Create a payment intent
      *
-     * @param Cart $cart
-     * @param array $payload
+     * @param PaymentPayload $payload
      * @return Array
      * @throws Exception
      */
-    public function createPayment(Cart $cart, array $payload = []): Array
+    public function createPayment(PaymentPayload $payload): Array
     {
-        $payload['amount'] = $cart->total->value;
-        $payload['currency'] = $cart->currency->code;
-
         try {
             $paymentIntent = $this->driver->createPayment($payload);
         } catch (Exception $e) {
-            // throwing general exception because there can be several different errors from the payment provider
-            throw new Exception('Failed to create payment intent: ' . $e->getMessage());
+            throw new StripeException('Failed to create payment intent: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
         return $paymentIntent->toArray();
@@ -81,8 +71,7 @@ class StripeGateway
         try {
             $payment = $this->driver->retrievePayment($sessionId);
         } catch (Exception $e) {
-            // throwing general exception because there can be several different errors from the payment provider
-            throw new Exception('Failed to retrieve payment: ' . $e->getMessage());
+            throw new StripeException('Failed to retrieve payment: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
         return $payment->toArray();

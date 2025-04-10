@@ -3,6 +3,7 @@
 namespace Minic\LunarStripePayment\Drivers;
 
 use Minic\LunarStripePayment\Contracts\StripeDriverInterface;
+use Minic\LunarStripePayment\DTOs\PaymentPayload;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Stripe\StripeClient;
@@ -29,27 +30,27 @@ class StripeDriver implements StripeDriverInterface
     /**
      * Create a payment intent from a Cart
      * 
-     * @param array $payload
+     * @param PaymentPayload $payload
      * @return Session
      */
-    public function createPayment(array $payload = []): Session
+    public function createPayment(PaymentPayload $payload): Session
     {
         $payment = Session::create([
             'payment_method_types' => ['card'],
             'line_items' => [[
                 'price_data' => [
-                    'currency' => $payload['currency'],
+                    'currency' => $payload->currency,
                     'product_data' => [
                         'name' => 'Total payment',
                     ],
-                    'unit_amount' => $payload['amount'],
+                    'unit_amount' => $payload->amount,
                 ],
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => $payload['success_url'],
-            'cancel_url' => $payload['cancel_url'],
-            'customer_email' => $payload['email'] ?? null,
+            'success_url' => $payload->successUrl,
+            'cancel_url' => $payload->cancelUrl,
+            'customer_email' => $payload->email ?? null,
         ]);
 
         return $payment;

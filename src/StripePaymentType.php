@@ -17,11 +17,12 @@ class StripePaymentType extends AbstractPayment
      */
     public function authorize(): ?PaymentAuthorize
     {
+        $this->order = $this->order ?? $this->cart->draftOrder()->first();
+
         if (! $this->order) {
-            if (! $this->order = $this->cart->draftOrder()->first()) {
-                $this->order = $this->cart->createOrder();
-            }
+            $this->order = $this->cart->createOrder();
         }
+
         $orderMeta = array_merge(
             (array) $this->order->meta,
             $this->data['meta'] ?? []

@@ -1,5 +1,5 @@
 {
-  "name": "minic/lunar-stripe-payment",
+  "name": "minic/lunar-hosted-payment",
   "description": "Flexible payment integration for Laravel, lunarphp, supporting multiple payment providers.",
   "keywords": [
     "minic",
@@ -7,7 +7,8 @@
     "lunarphp",
     "ecommerce",
     "payment",
-    "stripe"
+    "stripe",
+    "hosted"
   ],
   "type": "library",
   "license": "MIT",
@@ -25,7 +26,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Minic\\LunarStripePayment\\": "src/"
+      "Minic\\LunarHostedPayment\\": "src/"
     }
   },
   "minimum-stability": "dev",

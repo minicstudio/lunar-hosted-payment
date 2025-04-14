@@ -1,18 +1,18 @@
 <?php
 
-namespace Minic\LunarStripePayment\Drivers;
+namespace Minic\LunarHostedPayment\Drivers;
 
-use Minic\LunarStripePayment\Contracts\StripeDriverInterface;
-use Minic\LunarStripePayment\DTOs\PaymentPayload;
+use Minic\LunarHostedPayment\Contracts\HostedPaymentDriverInterface;
+use Minic\LunarHostedPayment\DTOs\PaymentPayload;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Stripe\StripeClient;
 
-class StripeDriver implements StripeDriverInterface
+class StripeDriver implements HostedPaymentDriverInterface
 {
     public function __construct()
     {
-        Stripe::setApiKey(config('services.stripe.secret_key'));
+        Stripe::setApiKey(config('lunar-hosted-payment.payment.providers.stripe.secret_key'));
     }
 
     /**
@@ -23,7 +23,7 @@ class StripeDriver implements StripeDriverInterface
     public function getClient(): StripeClient
     {
         return new StripeClient([
-            'api_key' => config('services.stripe.secret_key'),
+            'api_key' => config('lunar-hosted-payment.payment.providers.stripe.secret_key'),
         ]);
     }
 
@@ -65,5 +65,18 @@ class StripeDriver implements StripeDriverInterface
     public function retrievePayment(string $sessionId): Session
     {
         return Session::retrieve($sessionId);
+    }
+
+    /**
+     * Validate the payment session by its status
+     * 
+     * @param string $sessionId
+     * @return bool
+     */
+    public function paymentIsCompleted(string $sessionId): bool
+    {
+        $payment = $this->retrievePayment($sessionId);
+
+        return $payment->status === 'complete';
     }
 }

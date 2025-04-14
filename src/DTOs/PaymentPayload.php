@@ -1,6 +1,6 @@
 <?php
 
-namespace Minic\LunarStripePayment\DTOs;
+namespace Minic\LunarHostedPayment\DTOs;
 
 class PaymentPayload
 {

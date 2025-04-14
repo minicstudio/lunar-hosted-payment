@@ -1,9 +1,7 @@
-# Lunar Stripe Payment Integration
+# Lunar Hosted Payment Integration
 
 ## Introduction
-This package provides a Stripe payment gateway integration for Lunar PHP. It allows you to handle payments seamlessly using Stripe's API, including creating payment intents and managing transactions.
-
-This package provides a Stripe payment gateway integration for Lunar PHP. It allows you to handle payments using Stripe's API by creating payment sessions with customizable payloads, and retrieveing existing ones.
+This package provides hosted payment gateway integration for Lunar PHP. It allows you to handle payments seamlessly using payment APIs like Stripe, including creating payment intents and managing transactions.
 
 ## Features
 - Stripe payment gateway integration
@@ -37,56 +35,63 @@ To use this package, you need to have a Stripe account properly configured. Foll
 ### Install the Package
 Install the package via Composer:
 ```bash
-composer require minic/lunar-stripe-payment
+composer require minic/lunar-hosted-payment
 ```
 
 ### Publish the Configuration
 Publish the configuration file:
-```sh
-php artisan vendor:publish --tag=lunar.stripe.config
+
+```bash
+php artisan vendor:publish --tag=hosted-payments-config
 ```
 
 ### Register the Service Provider (if not auto-discovered)
 If your Laravel project does not support package auto-discovery, add the service provider manually in `config/app.php`:
 ```php
 'providers' => [
-    Minic\LunarStripePayment\StripeServiceProvider::class,
+    Minic\LunarHostedPayment\HostedPaymentServiceProvider::class,
 ];
 ```
 
-### Add your Stripe credentials
-Make sure you have the Stripe credentials set in `config/services.php`
+### Add your payment provider credentials
+Make sure you have the provider credentials set in `config/lunar-hosted-payment/payment.php`. E.g.:
 
 ```php
-'stripe' => [
-    'key' => env('STRIPE_SECRET_KEY'),
-    'public_key' => env('STRIPE_PUBLIC_KEY'),
-],
+return [
+    'default' => env('PAYMENT_PROVIDER', 'stripe'),
+    'providers' => [
+        'stripe' => [
+            'driver_class' => Minic\LunarHostedPayment\Drivers\StripeDriver::class,
+            'secret_key' => env('STRIPE_SECRET_KEY'),
+            'public_key' => env('STRIPE_PUBLIC_KEY'),
+        ]
+    ]
+];
 ```
 
 ## Usage
 
 ### Create a Payment
 ```php
-use Minic\LunarPaymentProcessor\Facades\StripeGateway;
+use Minic\LunarHostedPayment\Facades\HostedPaymentGateway;
 
-$payment = StripeGateway::createPayment(\Lunar\Models\Cart $cart, $payload = []);
+$payment = HostedPaymentGateway::createPayment(\Lunar\Models\Cart $cart, $payload = []);
 ```
 
-This method will create a Stripe checkout session and return the created payment session. You can then redirect the user to the Stripe's payment page:
+This method will create a payment session and return the created payment session. You can then redirect the user to the provicer's payment page:
 
 ```php
 return redirect($payment['url']);
 ```
 
-**Note:** The user will be redirected to the Stripe payment page for completing the transaction.
+**Note:** The user will be redirected to the provicer's payment page for completing the transaction.
 
 ### Authorize a Payment (create order)
 
 Following the lunarphp's pattern of authorizing the payment you can create the actual order by calling the gateway's authorize method. This will return the newly created order id.
 
 ```php
-$orderId = StripeGateway::authorize($cart, $cart->meta->intent_id);
+$orderId = HostedPaymentGateway::authorize($cart, $cart->meta->intent_id);
 ```
 
 ## Contributing

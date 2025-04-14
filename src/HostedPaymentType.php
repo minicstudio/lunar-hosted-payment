@@ -2,7 +2,6 @@
 
 namespace Minic\LunarHostedPayment;
 
-use Exception;
 use Lunar\Base\DataTransferObjects\PaymentAuthorize;
 use Lunar\Base\DataTransferObjects\PaymentCapture;
 use Lunar\Base\DataTransferObjects\PaymentRefund;
@@ -11,7 +10,6 @@ use Lunar\Models\Transaction;
 use Lunar\PaymentTypes\AbstractPayment;
 use Minic\LunarHostedPayment\DTOs\PaymentPayload;
 use Minic\LunarHostedPayment\Facades\HostedPaymentGateway;
-use Stripe\PaymentIntent;
 
 class HostedPaymentType extends AbstractPayment
 {
@@ -70,7 +68,7 @@ class HostedPaymentType extends AbstractPayment
         ]);
 
         $this->order->update([
-            'status' => PaymentIntent::STATUS_SUCCEEDED,
+            'status' => $this->config['authorized'] ?? 'payment-received',
             'meta' => $orderMeta,
             'placed_at' => now(),
         ]);

@@ -4,6 +4,7 @@ namespace Minic\LunarHostedPayment;
 
 use Illuminate\Support\ServiceProvider;
 use Lunar\Facades\Payments;
+use Minic\LunarHostedPayment\Exceptions\InvalidHostedPaymentProviderException;
 
 class HostedPaymentServiceProvider extends ServiceProvider
 {
@@ -36,7 +37,7 @@ class HostedPaymentServiceProvider extends ServiceProvider
             $providerConfig = $providers[$provider] ?? null;
 
             if (!$providerConfig || !isset($providerConfig['driver_class']) || !class_exists($providerConfig['driver_class'])) {
-                throw new \Exception("Invalid or unsupported payment provider: {$provider}");
+                throw new InvalidHostedPaymentProviderException("Invalid or unsupported payment provider: {$provider}");
             }
 
             $driverClass = $providerConfig['driver_class'];

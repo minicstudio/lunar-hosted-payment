@@ -65,6 +65,7 @@ class HostedPaymentType extends AbstractPayment
         $this->cart->paymentIntents()->create([
             'intent_id' => $this->data['sessionId'],
             'status' => $this->config['authorized'] ?? 'payment-received',
+            'order_id' => $this->order->id,
         ]);
 
         $this->order->update([

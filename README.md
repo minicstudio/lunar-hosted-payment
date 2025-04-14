@@ -78,13 +78,13 @@ use Minic\LunarHostedPayment\Facades\HostedPaymentGateway;
 $payment = HostedPaymentGateway::createPayment(\Lunar\Models\Cart $cart, $payload = []);
 ```
 
-This method will create a payment session and return the created payment session. You can then redirect the user to the provicer's payment page:
+This method will create a payment session and return the created payment session. You can then redirect the user to the provider's payment page:
 
 ```php
 return redirect($payment['url']);
 ```
 
-**Note:** The user will be redirected to the provicer's payment page for completing the transaction.
+**Note:** The user will be redirected to the provider's payment page for completing the transaction.
 
 ### Authorize a Payment (create order)
 

@@ -6,6 +6,7 @@ use Lunar\Base\DataTransferObjects\PaymentAuthorize;
 use Lunar\Base\DataTransferObjects\PaymentCapture;
 use Lunar\Base\DataTransferObjects\PaymentRefund;
 use Lunar\Events\PaymentAttemptEvent;
+use Lunar\Models\Order;
 use Lunar\Models\Transaction;
 use Lunar\PaymentTypes\AbstractPayment;
 use Minic\LunarHostedPayment\DTOs\PaymentPayload;
@@ -29,6 +30,18 @@ class HostedPaymentType extends AbstractPayment
         );
 
         $payment = HostedPaymentGateway::createPayment($payload);
+
+        // create transaction entry
+        Order::find($this->data['orderId'])->transactions()->create([
+            'type' => 'capture',
+            'amount' => $this->cart->total->value,
+            'driver' => config('lunar-hosted-payment.payment.default', 'stripe'),
+            'reference' => $payment['id'],
+            'status' => $payment['status'],
+            'success' => false,
+            'card_type' => '',
+
+        ]);
 
         return [
             'redirectUrl' => $payment['url'],
@@ -62,16 +75,16 @@ class HostedPaymentType extends AbstractPayment
             $this->data['meta'] ?? []
         );
 
-        $this->cart->paymentIntents()->create([
-            'intent_id' => $this->data['sessionId'],
-            'status' => $this->config['authorized'] ?? 'payment-received',
-            'order_id' => $this->order->id,
-        ]);
-
         $this->order->update([
             'status' => $this->config['authorized'] ?? 'payment-received',
             'meta' => $orderMeta,
             'placed_at' => now(),
+        ]);
+
+        // update transaction
+        $this->order->transactions()->where('reference', $this->data['sessionId'])->update([
+            'status' => 'complete',
+            'success' => true,
         ]);
 
         $response = new PaymentAuthorize(

@@ -2,6 +2,7 @@
 
 namespace Minic\LunarHostedPayment;
 
+use Illuminate\Support\Facades\DB;
 use Lunar\Base\DataTransferObjects\PaymentAuthorize;
 use Lunar\Base\DataTransferObjects\PaymentCapture;
 use Lunar\Base\DataTransferObjects\PaymentRefund;
@@ -75,17 +76,19 @@ class HostedPaymentType extends AbstractPayment
             $this->data['meta'] ?? []
         );
 
-        $this->order->update([
-            'status' => $this->config['authorized'] ?? 'payment-received',
-            'meta' => $orderMeta,
-            'placed_at' => now(),
-        ]);
+        DB::transaction(function () use ($orderMeta) {
+            $this->order->update([
+                'status' => $this->config['authorized'] ?? 'payment-received',
+                'meta' => $orderMeta,
+                'placed_at' => now(),
+            ]);
 
-        // update transaction
-        $this->order->transactions()->where('reference', $this->data['sessionId'])->update([
-            'status' => 'complete',
-            'success' => true,
-        ]);
+            // update transaction
+            $this->order->transactions()->where('reference', $this->data['sessionId'])->update([
+                'status' => 'complete',
+                'success' => true,
+            ]);
+        });
 
         $response = new PaymentAuthorize(
             success: true,

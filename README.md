@@ -69,29 +69,57 @@ return [
 ];
 ```
 
+### Lunar payments configuration file
+Your lunar payments.php config file should look like this:
+```php
+<?php
+
+return [
+
+    'default' => env('PAYMENTS_TYPE', 'offline'),
+
+    'types' => [
+        'offline' => [
+            'driver' => 'offline',
+            'authorized' => 'payment-offline',
+        ],
+        'hosted-payment' => [
+            'driver' => 'hosted-payment',
+            'authorized' => 'payment-received',
+        ],
+    ],
+
+];
+```
+
 ## Usage
 
 ### Create a Payment
 ```php
-use Minic\LunarHostedPayment\Facades\HostedPaymentGateway;
-
-$payment = HostedPaymentGateway::createPayment(\Lunar\Models\Cart $cart, $payload = []);
+$response = Lunar\Facades\Payments::driver('hosted-payment')->cart($cart)->withData([
+    'successUrl' => $successUrl,
+    'cancelUrl' => $cancelUrl,
+    'paymentOption' => 'hosted-payment',
+    'orderId' => $order->id,
+])->initiatePayment();
 ```
 
 This method will create a payment session and return the created payment session. You can then redirect the user to the provider's payment page:
 
 ```php
-return redirect($payment['url']);
+return redirect($response['redirectUrl']);
 ```
 
 **Note:** The user will be redirected to the provider's payment page for completing the transaction.
 
 ### Authorize a Payment (create order)
 
-Following the lunarphp's pattern of authorizing the payment you can create the actual order by calling the gateway's authorize method. This will return the newly created order id.
+Following the lunarphp's pattern of authorizing the payment you can create the actual order by calling the driver's authorize method. This will return the newly created order id.
 
 ```php
-$orderId = HostedPaymentGateway::authorize($cart, $cart->meta->intent_id);
+Lunar\Facades\Payments::driver('hosted-payment')->cart($cart)->withData(
+    ['sessionId' => $transaction->reference]
+)->authorize();
 ```
 
 ## Contributing

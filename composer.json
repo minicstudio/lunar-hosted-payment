@@ -1,7 +1,6 @@
 {
   "name": "minic/lunar-hosted-payment",
   "description": "Flexible payment integration for Laravel, lunarphp, supporting multiple payment providers.",
-  "version": "1.2.0",
   "keywords": [
     "minic",
     "laravel",

@@ -8,7 +8,7 @@ use Lunar\Base\DataTransferObjects\PaymentCapture;
 use Lunar\Base\DataTransferObjects\PaymentRefund;
 use Lunar\Events\PaymentAttemptEvent;
 use Lunar\Models\Order;
-use Lunar\Models\Transaction;
+use Lunar\Models\Contracts\Transaction;
 use Lunar\PaymentTypes\AbstractPayment;
 use Minic\LunarHostedPayment\DTOs\PaymentPayload;
 use Minic\LunarHostedPayment\Facades\HostedPaymentGateway;

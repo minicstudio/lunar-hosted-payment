@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3fea60cecacefe16e46b7fde77b48dca",
+    "content-hash": "80ff7126847fcd1786fa2cd223068755",
     "packages": [
         {
             "name": "amphp/amp",
@@ -5152,11 +5152,11 @@
         },
         {
             "name": "lunarphp/lunar",
-            "version": "v1.8.2",
+            "version": "v1.8.3",
             "source": {
                 "type": "git",
                 "url": "git@github.com:minicstudio/lunar.git",
-                "reference": "ac455c1c3b97a9588ec9ebd94c5847d863169e57"
+                "reference": "1181ffdbc1e24e71eda245e51d9ff1bbd6770a7f"
             },
             "require": {
                 "awcodes/filament-badgeable-column": "^2.3.2",
@@ -5297,7 +5297,7 @@
                 }
             ],
             "description": "Custom minic fork of Lunar package",
-            "time": "2025-08-18T12:56:11+00:00"
+            "time": "2025-08-18T13:17:36+00:00"
         },
         {
             "name": "maennchen/zipstream-php",

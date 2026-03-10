@@ -21,7 +21,7 @@
   ],
   "require": {
     "php": "^8.2",
-    "lunarphp/lunar": "^1.12.1",
+    "lunarphp/lunar-minic": "^2.0.0",
     "stripe/stripe-php": "^16.0"
   },
   "autoload": {
